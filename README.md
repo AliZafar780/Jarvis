@@ -1,6 +1,8 @@
-# 🤖 Jarvis - AI Agent with Ollama, TTS & System Control
+# 🤖 Jarvis
 
-A powerful, extensible AI assistant inspired by Iron Man's JARVIS. Features local LLM integration via Ollama, text-to-speech voice control, and comprehensive system automation capabilities.
+An AI agent with Ollama integration, text-to-speech, and system control capabilities.
+Inspired by Iron Man's JARVIS, it features local LLM integration, voice control, and
+comprehensive system automation.
 
 ![Python](https://img.shields.io/badge/python-3.9+-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
@@ -166,18 +168,24 @@ TOOLS["my_tool"] = my_tool
 ```
 jarvis/
 ├── jarvis/
-│   ├── __init__.py
+│   ├── __init__.py       # Package metadata
 │   ├── agent.py          # Main orchestrator
+│   ├── config.py         # Configuration settings
 │   ├── llm.py            # Ollama integration
-│   ├── voice.py          # TTS & speech recognition
-│   ├── tools.py          # System tools
-│   ├── skills.py         # Extensible skills
-│   ├── memory.py         # Vector memory
-│   └── config.py         # Configuration
+│   ├── memory.py         # Persistent memory storage
+│   ├── skills.py         # Extensible skills system
+│   ├── tools.py          # System and utility tools
+│   └── voice.py          # TTS and speech recognition
 ├── main.py               # Entry point
 ├── requirements.txt      # Dependencies
 ├── .env.example          # Environment template
-└── README.md             # This file
+├── setup.py              # Package setup
+├── Dockerfile            # Container image
+├── docker-compose.yml    # Container orchestration
+├── Makefile              # Build automation
+├── README.md             # This file
+├── tests/                # Test suite
+└── examples/             # Usage examples
 ```
 
 ## 🐛 Troubleshooting

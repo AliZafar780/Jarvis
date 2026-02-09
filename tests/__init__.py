@@ -1,1 +1,1 @@
-"""Tests for Jarvis."""
+"""Test suite for Jarvis."""

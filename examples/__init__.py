@@ -1,1 +1,1 @@
-"""Example scripts for Jarvis."""
+"""Usage examples and demonstrations."""

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Basic usage examples for Jarvis."""
+"""Basic usage examples demonstrating core features."""
 
 from jarvis.llm import OllamaClient
 from jarvis.tools import execute_tool

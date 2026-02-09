@@ -1,4 +1,4 @@
-"""Memory management for Jarvis using ChromaDB."""
+"""Persistent memory storage using ChromaDB for conversations, facts, and tasks."""
 
 import hashlib
 from datetime import datetime

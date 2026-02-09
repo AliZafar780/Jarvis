@@ -1,4 +1,4 @@
-"""Tests for Jarvis skills."""
+"""Tests for the skills system."""
 
 import unittest
 from jarvis.skills import (

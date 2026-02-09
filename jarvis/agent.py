@@ -1,4 +1,4 @@
-"""Jarvis AI Agent - Main orchestrator."""
+"""Main orchestrator for the Jarvis AI agent."""
 
 import re
 import json
@@ -254,7 +254,7 @@ When you want to use a tool, include it in your response like:
         # Welcome message
         welcome = Panel(
             Text("JARVIS", style="bold cyan", justify="center") +
-            Text("\nJust A Rather Very Intelligent System", style="dim", justify="center"),
+            Text("\nAI Agent with Ollama, TTS, and System Control", style="dim", justify="center"),
             subtitle="v1.0.0 | Powered by Ollama"
         )
         console.print(welcome)

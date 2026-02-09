@@ -1,4 +1,4 @@
-"""Tests for Jarvis tools."""
+"""Tests for the tools system."""
 
 import unittest
 from unittest.mock import patch, MagicMock

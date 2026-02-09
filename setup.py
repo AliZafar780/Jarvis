@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Setup script for Jarvis."""
+"""Package setup for Jarvis."""
 
 from setuptools import setup, find_packages
 
@@ -12,11 +12,11 @@ with open("requirements.txt", "r", encoding="utf-8") as f:
 setup(
     name="jarvis-agent",
     version="1.0.0",
-    author="AI Assistant",
-    description="Jarvis - AI Agent with Ollama, TTS & System Control",
+    author="Jarvis Team",
+    description="An AI agent with Ollama integration, text-to-speech, and system control capabilities",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/yourusername/jarvis",
+    url="https://github.com/jarvis-ai/jarvis",
     packages=find_packages(),
     classifiers=[
         "Development Status :: 4 - Beta",

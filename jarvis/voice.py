@@ -1,4 +1,4 @@
-"""Voice synthesis and recognition for Jarvis."""
+"""Text-to-speech and speech recognition capabilities."""
 
 import threading
 import queue

@@ -1,4 +1,4 @@
-"""System control tools for Jarvis."""
+"""System control, file operations, web search, and utility tools."""
 
 import os
 import subprocess

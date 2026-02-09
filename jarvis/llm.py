@@ -1,4 +1,4 @@
-"""Ollama LLM integration for Jarvis."""
+"""Ollama LLM client integration for chat and text generation."""
 
 import json
 from typing import AsyncIterator, Dict, List, Optional, Callable

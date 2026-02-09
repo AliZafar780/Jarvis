@@ -1,4 +1,4 @@
-"""Extensible skills system for Jarvis."""
+"""Extensible skill system for handling specialized commands."""
 
 import json
 import re
@@ -41,10 +41,10 @@ class Skill(ABC):
 
 
 class CodeExecutionSkill(Skill):
-    """Execute Python code safely."""
+    """Execute Python expressions safely."""
 
     name = "code"
-    description = "Execute Python code"
+    description = "Execute Python expressions and calculations"
     triggers = ["run code", "execute code", "python", "calculate"]
 
     def can_handle(self, command: str) -> bool:
@@ -121,10 +121,10 @@ class CodeExecutionSkill(Skill):
 
 
 class ReminderSkill(Skill):
-    """Set reminders."""
+    """Set reminders and alarms."""
 
     name = "reminder"
-    description = "Set reminders and alarms"
+    description = "Set reminders for tasks and events"
     triggers = ["remind me", "reminder", "alarm"]
 
     def can_handle(self, command: str) -> bool:
@@ -157,7 +157,7 @@ class NoteTakingSkill(Skill):
     """Take and retrieve notes."""
 
     name = "notes"
-    description = "Take notes and retrieve them"
+    description = "Take notes and retrieve them later"
     triggers = ["note", "write down", "remember that", "what did i note"]
 
     def __init__(self):

@@ -1,4 +1,4 @@
-"""Configuration management for Jarvis."""
+"""Configuration settings and environment variable management."""
 
 import os
 from dataclasses import dataclass, field

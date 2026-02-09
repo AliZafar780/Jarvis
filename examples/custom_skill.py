@@ -1,17 +1,14 @@
 #!/usr/bin/env python3
-"""Example: Creating a custom skill for Jarvis."""
+"""Examples of creating and registering custom skills."""
 
 from jarvis.skills import Skill, SkillResult, skills
 
 
 class WeatherSkill(Skill):
-    """
-    Example custom skill for weather information.
-    In production, you'd use a real weather API.
-    """
+    """Custom skill for retrieving weather information."""
 
     name = "weather_advanced"
-    description = "Get detailed weather information"
+    description = "Get detailed weather information for a location"
     triggers = ["weather", "temperature", "forecast"]
 
     def can_handle(self, command: str) -> bool:
@@ -41,10 +38,10 @@ class WeatherSkill(Skill):
 
 
 class JokeSkill(Skill):
-    """Example skill that tells jokes."""
+    """Custom skill that tells programming jokes."""
 
     name = "jokes"
-    description = "Tell programming jokes"
+    description = "Tell programming and tech jokes"
     triggers = ["joke", "funny", "laugh", "humor"]
 
     JOKES = [
@@ -65,10 +62,10 @@ class JokeSkill(Skill):
 
 
 class GreetingSkill(Skill):
-    """Skill for personalized greetings."""
+    """Custom skill for time-based personalized greetings."""
 
     name = "greeting"
-    description = "Personalized greetings based on time of day"
+    description = "Provide personalized greetings based on time of day"
     triggers = ["hello", "hi", "good morning", "good afternoon", "good evening"]
 
     def can_handle(self, command: str) -> bool:

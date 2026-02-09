@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Jarvis - AI Agent with Ollama, TTS, and System Control
+Jarvis - AI Agent with Ollama integration, text-to-speech, and system control capabilities.
 
 Usage:
     python main.py                    # Chat mode
