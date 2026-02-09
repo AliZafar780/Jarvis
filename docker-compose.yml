@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  jarvis:
+    build: .
+    container_name: jarvis-agent
+    environment:
+      - OLLAMA_HOST=http://host.docker.internal:11434
+      - OLLAMA_MODEL=llama3.2
+    volumes:
+      - ./jarvis/memory:/app/jarvis/memory
+      - ./.env:/app/.env:ro
+    # For voice mode, you might need:
+    # devices:
+    #   - /dev/snd:/dev/snd
+    command: ["--command", "Hello, are you working?"]
+    # Interactive mode:
+    # stdin_open: true
+    # tty: true
+    # command: []
+
+  # Optional: Run Ollama in container (requires GPU support)
+  # ollama:
+  #   image: ollama/ollama
+  #   container_name: jarvis-ollama
+  #   volumes:
+  #     - ollama-data:/root/.ollama
+  #   ports:
+  #     - "11434:11434"
+  #   deploy:
+  #     resources:
+  #       reservations:
+  #         devices:
+  #           - driver: nvidia
+  #             count: 1
+  #             capabilities: [gpu]
+
+# volumes:
+#   ollama-data:
