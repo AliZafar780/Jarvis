@@ -1,5 +1,6 @@
 """Extensible skill system for handling specialized commands."""
 
+import ast
 import json
 import re
 from abc import ABC, abstractmethod
@@ -52,51 +53,51 @@ class CodeExecutionSkill(Skill):
 
     def execute(self, command: str, **kwargs) -> SkillResult:
         """Execute Python code in a restricted environment."""
-        # Extract code from command
         code = self._extract_code(command)
 
         if not code:
             return SkillResult(False, "No code found in command")
 
         try:
-            # Create safe globals
+            import math
             safe_globals = {
-                "__builtins__": {
-                    "len": len,
-                    "range": range,
-                    "enumerate": enumerate,
-                    "zip": zip,
-                    "map": map,
-                    "filter": filter,
-                    "sum": sum,
-                    "min": min,
-                    "max": max,
-                    "abs": abs,
-                    "round": round,
-                    "pow": pow,
-                    "divmod": divmod,
-                    "print": print,
-                    "str": str,
-                    "int": int,
-                    "float": float,
-                    "list": list,
-                    "dict": dict,
-                    "set": set,
-                    "tuple": tuple,
-                }
+                "__builtins__": {},
+                "math": math,
+                "len": len,
+                "range": range,
+                "enumerate": enumerate,
+                "zip": zip,
+                "map": map,
+                "filter": filter,
+                "sum": sum,
+                "min": min,
+                "max": max,
+                "abs": abs,
+                "round": round,
+                "pow": pow,
+                "divmod": divmod,
+                "str": str,
+                "int": int,
+                "float": float,
+                "list": list,
+                "dict": dict,
+                "set": set,
+                "tuple": tuple,
             }
-
-            # Execute code
-            result = eval(code, safe_globals, {})
-
+            safe_locals = {}
+            result = eval(code, safe_globals, safe_locals)
             return SkillResult(
                 True,
                 f"Result: {result}",
                 {"result": result}
             )
 
+        except SyntaxError as e:
+            return SkillResult(False, f"Syntax error: {e}")
+        except (TypeError, ValueError, KeyError, IndexError, ZeroDivisionError) as e:
+            return SkillResult(False, f"Execution error: {e}")
         except Exception as e:
-            return SkillResult(False, f"Error: {e}")
+            return SkillResult(False, f"Error: {type(e).__name__}: {e}")
 
     def _extract_code(self, command: str) -> Optional[str]:
         """Extract code from natural language command."""

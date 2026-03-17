@@ -366,17 +366,25 @@ class UtilityTools:
     def calculate(expression: str) -> ToolResult:
         """Calculate a mathematical expression."""
         try:
-            # Safe evaluation - only allow basic math
             allowed_chars = set('0123456789+-*/.() ')
             if not all(c in allowed_chars for c in expression):
                 return ToolResult(False, "Invalid characters in expression")
 
-            result = eval(expression)
+            import ast
+            tree = ast.parse(expression, mode='eval')
+            for node in ast.walk(tree):
+                if not isinstance(node, (ast.Expression, ast.BinOp, ast.UnaryOp, ast.Constant, ast.Num, ast.Add, ast.Sub, ast.Mult, ast.Div, ast.FloorDiv, ast.Mod, ast.Pow, ast.USub, ast.UAdd)):
+                    return ToolResult(False, "Unsupported operation in expression")
+
+            allowed_globals = {"__builtins__": {}}
+            result = eval(compile(tree, '<string>', 'eval'), allowed_globals)
             console.print(f"[green]{expression} = {result}[/green]")
             return ToolResult(True, str(result), {"result": result})
 
-        except Exception as e:
+        except (SyntaxError, ValueError) as e:
             return ToolResult(False, f"Error: {e}")
+        except Exception as e:
+            return ToolResult(False, f"Error: {type(e).__name__}: {e}")
 
 
 # Tool registry
