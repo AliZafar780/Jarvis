@@ -8,6 +8,7 @@
   <img src="https://img.shields.io/badge/Python-3.9+-00d4ff?style=flat&logo=python" alt="Python" />
   <img src="https://img.shields.io/badge/License-MIT-00d4ff?style=flat" alt="License" />
   <img src="https://img.shields.io/badge/Status-BETA-00d4ff?style=flat" alt="Status" />
+  <img src="https://img.shields.io/badge/Ollama-Ready-00d4ff?style=flat&logo=ollama" alt="Ollama" />
 </p>
 
 ---
@@ -24,47 +25,60 @@
 
 ## ✨ Features
 
-| Module | Status |
-|:-------|:-------|
-| 🤖 Ollama Integration | `ACTIVE` |
-| 🗣️ Voice Control | `BETA` |
-| 🔊 Text-to-Speech | `ACTIVE` |
-| 💾 Memory System | `ACTIVE` |
-| 🌐 Web Search | `ACTIVE` |
-
----
+| Module | Status | Description |
+|:-------|:-------|:------------|
+| 🤖 Ollama Integration | `ACTIVE` | Local LLM inference |
+| 🗣️ Voice Control | `BETA` | Text-to-speech commands |
+| 🔊 Speech Recognition | `BETA` | Voice input processing |
+| 💻 System Control | `ACTIVE` | System automation |
 
 ## 🚀 Quick Start
 
 ```bash
-# Install Ollama
-curl -fsSL https://ollama.com/install.sh | sh
-
-# Pull model
-ollama pull llama3.2
-
-# Clone & run
+# Clone the repository
 git clone https://github.com/AliZafar780/Jarvis.git
 cd Jarvis
+
+# Install dependencies
 pip install -r requirements.txt
-python main.py
+
+# Run JARVIS
+python jarvis.py
 ```
 
----
+## 📋 Requirements
+
+- Python 3.9+
+- Ollama installed locally
+- pyttsx3 for voice output
+- speech_recognition for voice input
+
+## 🔧 Configuration
+
+Edit `config.json` to customize:
+- Ollama model selection
+- Voice preferences
+- Command aliases
 
 ## 📁 Project Structure
 
 ```
 Jarvis/
-├── jarvis/
-│   ├── core/          # Core functionality
-│   ├── skills.py      # Skill system
-│   ├── tools.py       # System tools
-│   └── main.py        # Entry point
-├── requirements.txt
-└── README.md
+├── jarvis.py          # Main entry point
+├── config.json        # Configuration
+├── modules/           # Feature modules
+├── voice/            # Voice processing
+└── requirements.txt  # Dependencies
 ```
+
+## 🤝 Contributing
+
+Pull requests are welcome!
+
+## 📜 License
+
+MIT License
 
 ---
 
-> *"I'm here to serve."* — JARVIS
+*Built with ❤️ by Ali Zafar*
