@@ -1,6 +1,6 @@
 """Persistent memory storage using ChromaDB for conversations, facts, and tasks."""
 
-import hashlib
+import uuid
 from datetime import datetime
 from pathlib import Path
 from typing import List, Dict, Optional, Any
@@ -26,9 +26,7 @@ class Memory:
 
     def add_conversation(self, role: str, content: str, metadata: Optional[Dict] = None):
         """Add a conversation entry to memory."""
-        doc_id = hashlib.md5(
-            f"{datetime.now().isoformat()}{content[:50]}".encode()
-        ).hexdigest()
+        doc_id = uuid.uuid4().hex
 
         self.conversations.add(
             ids=[doc_id],
@@ -59,7 +57,7 @@ class Memory:
 
     def remember_fact(self, fact: str, category: str = "general"):
         """Remember a fact."""
-        doc_id = hashlib.md5(fact.encode()).hexdigest()
+        doc_id = uuid.uuid4().hex
 
         self.facts.add(
             ids=[doc_id],
@@ -84,9 +82,7 @@ class Memory:
 
     def add_task(self, task: str, priority: str = "normal"):
         """Add a task to remember."""
-        doc_id = hashlib.md5(
-            f"{datetime.now().isoformat()}{task}".encode()
-        ).hexdigest()
+        doc_id = uuid.uuid4().hex
 
         self.tasks.add(
             ids=[doc_id],

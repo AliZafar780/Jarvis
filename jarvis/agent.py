@@ -2,7 +2,7 @@
 
 import re
 import json
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, Set
 from rich.console import Console
 from rich.panel import Panel
 from rich.text import Text
@@ -13,6 +13,25 @@ from jarvis.voice import TTS, VoiceRecognizer
 from jarvis.tools import execute_tool, ToolResult, TOOLS
 
 console = Console()
+
+# Tools that require explicit user confirmation before execution
+DANGEROUS_TOOLS: Set[str] = {"kill_process", "run_command", "write_file"}
+
+
+def _confirm_dangerous_action(tool_name: str, **kwargs) -> bool:
+    """Prompt user to confirm execution of a dangerous tool."""
+    details = ", ".join(f"{k}={v}" for k, v in kwargs.items())
+    prompt = (
+        f"[bold yellow]SECURITY CONFIRMATION REQUIRED[/bold yellow]\n"
+        f"Tool: [red]{tool_name}[/red]\n"
+        f"Arguments: {details if details else 'none'}\n"
+        f"Type 'yes' to confirm, or anything else to cancel: "
+    )
+    try:
+        response = console.input(prompt).strip().lower()
+        return response == "yes"
+    except (KeyboardInterrupt, EOFError):
+        return False
 
 
 class JarvisAgent:
@@ -118,6 +137,9 @@ class JarvisAgent:
         # Direct tool execution shortcuts
         if command_lower.startswith("run "):
             cmd = command[4:]
+            # Require confirmation for all shell command execution
+            if not _confirm_dangerous_action("run_command", command=cmd):
+                return "Command cancelled by user."
             result = execute_tool("run_command", command=cmd)
             response = f"Command executed. {result.message}"
             if use_voice:
@@ -171,10 +193,19 @@ When you want to use a tool, include it in your response like:
         # Check for and execute tool calls
         tool_call = self._parse_tool_call(response)
         if tool_call:
-            result = execute_tool(tool_call["name"], **tool_call.get("args", {}))
+            tool_name = tool_call["name"]
+            tool_args = tool_call.get("args", {})
+            # Require confirmation for dangerous tools
+            if tool_name in DANGEROUS_TOOLS:
+                if not _confirm_dangerous_action(tool_name, **tool_args):
+                    response += "\n[Dangerous tool execution cancelled by user.]"
+                    if use_voice:
+                        self._speak(response)
+                    return response
+            result = execute_tool(tool_name, **tool_args)
             # Get follow-up response with tool results
             follow_up = self.llm.chat(
-                f"The tool '{tool_call['name']}' returned: {result.message}. "
+                f"The tool '{tool_name}' returned: {result.message}. "
                 f"Please provide a natural response to the user about this result."
             )
             response = follow_up

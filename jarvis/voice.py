@@ -18,6 +18,7 @@ class TTS:
         self.engine = None
         self.speech_queue = queue.Queue()
         self.speaking = False
+        self._lock = threading.Lock()
         self._init_engine()
 
     def _init_engine(self):
@@ -48,8 +49,9 @@ class TTS:
                     break
                 self.speaking = True
                 try:
-                    self.engine.say(text)
-                    self.engine.runAndWait()
+                    with self._lock:
+                        self.engine.say(text)
+                        self.engine.runAndWait()
                 except Exception as e:
                     console.print(f"[red]TTS Error: {e}[/red]")
                 self.speaking = False
@@ -77,7 +79,8 @@ class TTS:
     def stop(self):
         """Stop speaking."""
         if self.engine:
-            self.engine.stop()
+            with self._lock:
+                self.engine.stop()
             # Clear queue
             while not self.speech_queue.empty():
                 try:

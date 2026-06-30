@@ -1,11 +1,13 @@
 """System control, file operations, web search, and utility tools."""
 
 import os
+import shlex
 import subprocess
 import platform
 import psutil
 import webbrowser
 import json
+import operator
 from pathlib import Path
 from typing import Dict, List, Optional, Any
 from dataclasses import dataclass
@@ -120,11 +122,23 @@ class SystemTools:
             return ToolResult(False, f"Error: {e}")
 
     @staticmethod
-    def run_command(command: str, shell: bool = True) -> ToolResult:
-        """Run a shell command."""
+    def run_command(command: str, shell: bool = False) -> ToolResult:
+        """Run a shell command securely with shell=False and blocked command checking."""
+        BLOCKED_COMMANDS = {'rm', 'dd', 'mkfs', 'format', 'shutdown', 'reboot',
+                            'del', 'rd', 'poweroff', 'halt', 'init', 'telinit'}
         try:
+            parts = shlex.split(command)
+            if not parts:
+                return ToolResult(False, "Empty command")
+
+            cmd_lower = parts[0].lower()
+            # Check the base command (handle paths like /bin/rm)
+            base_cmd = os.path.basename(cmd_lower) if '/' in cmd_lower or '\\' in cmd_lower else cmd_lower
+            if base_cmd in BLOCKED_COMMANDS:
+                return ToolResult(False, f"Command '{parts[0]}' is blocked for security reasons")
+
             result = subprocess.run(
-                command,
+                parts if not shell else command,
                 shell=shell,
                 capture_output=True,
                 text=True,
@@ -146,16 +160,17 @@ class SystemTools:
 
     @staticmethod
     def open_application(app_name: str) -> ToolResult:
-        """Open an application."""
+        """Open an application securely without shell=True."""
         try:
             system = platform.system()
 
             if system == "Darwin":  # macOS
                 subprocess.run(["open", "-a", app_name])
             elif system == "Windows":
-                subprocess.run(["start", app_name], shell=True)
+                os.startfile(app_name)
             else:  # Linux
-                subprocess.run([app_name], shell=True)
+                parts = shlex.split(app_name)
+                subprocess.run(parts)
 
             return ToolResult(True, f"Opened {app_name}")
 
@@ -235,12 +250,22 @@ class FileTools:
 
     @staticmethod
     def write_file(path: str, content: str) -> ToolResult:
-        """Write content to a file."""
+        """Write content to a file within allowed directories only."""
+        ALLOWED_DIRS = [
+            Path.home() / "Documents",
+            Path.home() / "Downloads",
+            Path.home() / "Desktop",
+        ]
         try:
-            p = Path(path).expanduser()
+            p = Path(path).expanduser().resolve()
+            # Ensure file is within one of the allowed directories
+            if not any(str(p).startswith(str(allowed.resolve())) for allowed in ALLOWED_DIRS):
+                return ToolResult(False, f"Access denied: path must be within Documents, Downloads, or Desktop")
             p.parent.mkdir(parents=True, exist_ok=True)
             p.write_text(content)
             return ToolResult(True, f"Written to {p}")
+        except PermissionError:
+            return ToolResult(False, "Permission denied: cannot write to that location")
         except Exception as e:
             return ToolResult(False, f"Error: {e}")
 
@@ -341,6 +366,60 @@ class WebTools:
             return ToolResult(False, f"Error: {e}")
 
 
+class MathSafeEvaluator:
+    """Safe mathematical expression evaluator using AST only (no eval())."""
+    _OPERATORS = {
+        ast.Add: operator.add,
+        ast.Sub: operator.sub,
+        ast.Mult: operator.mul,
+        ast.Div: operator.truediv,
+        ast.FloorDiv: operator.floordiv,
+        ast.Mod: operator.mod,
+        ast.Pow: operator.pow,
+        ast.USub: operator.neg,
+        ast.UAdd: operator.pos,
+    }
+
+    @classmethod
+    def evaluate(cls, expression: str) -> float:
+        """Parse and safely evaluate a mathematical expression."""
+        tree = ast.parse(expression.strip(), mode='eval')
+        cls._validate(tree)
+        return cls._eval_node(tree.body)
+
+    @classmethod
+    def _validate(cls, tree: ast.AST):
+        """Walk the tree and ensure only safe math nodes are present."""
+        allowed_types = {
+            ast.Expression, ast.BinOp, ast.UnaryOp, ast.Constant,
+            ast.Add, ast.Sub, ast.Mult, ast.Div, ast.FloorDiv,
+            ast.Mod, ast.Pow, ast.USub, ast.UAdd,
+        }
+        for node in ast.walk(tree):
+            if type(node) not in allowed_types:
+                raise ValueError(f"Unsupported syntax: {type(node).__name__}")
+
+    @classmethod
+    def _eval_node(cls, node: ast.AST) -> float:
+        """Recursively evaluate an AST node without using eval()."""
+        if isinstance(node, ast.Constant):
+            val = node.value
+            if isinstance(val, (int, float)):
+                return float(val)
+            raise ValueError(f"Unsupported constant: {type(val).__name__}")
+        if isinstance(node, ast.BinOp):
+            op_func = cls._OPERATORS.get(type(node.op))
+            if op_func is None:
+                raise ValueError(f"Unsupported binary operator: {type(node.op).__name__}")
+            return op_func(cls._eval_node(node.left), cls._eval_node(node.right))
+        if isinstance(node, ast.UnaryOp):
+            op_func = cls._OPERATORS.get(type(node.op))
+            if op_func is None:
+                raise ValueError(f"Unsupported unary operator: {type(node.op).__name__}")
+            return op_func(cls._eval_node(node.operand))
+        raise ValueError(f"Unsupported node: {type(node).__name__}")
+
+
 class UtilityTools:
     """Miscellaneous utility tools."""
 
@@ -364,24 +443,17 @@ class UtilityTools:
 
     @staticmethod
     def calculate(expression: str) -> ToolResult:
-        """Calculate a mathematical expression."""
+        """Calculate a mathematical expression safely without eval()."""
         try:
-            allowed_chars = set('0123456789+-*/.() ')
+            allowed_chars = set('0123456789+-*/.()eE ')
             if not all(c in allowed_chars for c in expression):
                 return ToolResult(False, "Invalid characters in expression")
 
-            import ast
-            tree = ast.parse(expression, mode='eval')
-            for node in ast.walk(tree):
-                if not isinstance(node, (ast.Expression, ast.BinOp, ast.UnaryOp, ast.Constant, ast.Num, ast.Add, ast.Sub, ast.Mult, ast.Div, ast.FloorDiv, ast.Mod, ast.Pow, ast.USub, ast.UAdd)):
-                    return ToolResult(False, "Unsupported operation in expression")
-
-            allowed_globals = {"__builtins__": {}}
-            result = eval(compile(tree, '<string>', 'eval'), allowed_globals)
+            result = MathSafeEvaluator.evaluate(expression)
             console.print(f"[green]{expression} = {result}[/green]")
             return ToolResult(True, str(result), {"result": result})
 
-        except (SyntaxError, ValueError) as e:
+        except (SyntaxError, ValueError, ZeroDivisionError) as e:
             return ToolResult(False, f"Error: {e}")
         except Exception as e:
             return ToolResult(False, f"Error: {type(e).__name__}: {e}")

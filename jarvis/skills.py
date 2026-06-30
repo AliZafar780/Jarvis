@@ -59,43 +59,18 @@ class CodeExecutionSkill(Skill):
             return SkillResult(False, "No code found in command")
 
         try:
-            import math
-            safe_globals = {
-                "__builtins__": {},
-                "math": math,
-                "len": len,
-                "range": range,
-                "enumerate": enumerate,
-                "zip": zip,
-                "map": map,
-                "filter": filter,
-                "sum": sum,
-                "min": min,
-                "max": max,
-                "abs": abs,
-                "round": round,
-                "pow": pow,
-                "divmod": divmod,
-                "str": str,
-                "int": int,
-                "float": float,
-                "list": list,
-                "dict": dict,
-                "set": set,
-                "tuple": tuple,
-            }
-            safe_locals = {}
-            result = eval(code, safe_globals, safe_locals)
+            # Use ast.literal_eval which ONLY allows literal data structures
+            # (strings, bytes, numbers, tuples, lists, dicts, sets, booleans, None)
+            # This is safe against code injection unlike eval().
+            result = ast.literal_eval(code)
             return SkillResult(
                 True,
                 f"Result: {result}",
                 {"result": result}
             )
 
-        except SyntaxError as e:
-            return SkillResult(False, f"Syntax error: {e}")
-        except (TypeError, ValueError, KeyError, IndexError, ZeroDivisionError) as e:
-            return SkillResult(False, f"Execution error: {e}")
+        except (SyntaxError, ValueError) as e:
+            return SkillResult(False, f"Evaluation error (only literal expressions allowed): {e}")
         except Exception as e:
             return SkillResult(False, f"Error: {type(e).__name__}: {e}")
 
