@@ -1,5 +1,6 @@
 """System control, file operations, web search, and utility tools."""
 
+import ast
 import os
 import shlex
 import subprocess
